@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json;
 using NaughtyAttributes;
 using System.Linq;
 
@@ -12,54 +11,94 @@ public class Operator : SingletonMonoBehaviour<Operator>
     public bool testMode;
     [Tooltip("Skips opening titles")]
     public bool skipOpeningTitles;
-    [Tooltip("Players must join the room with valid Twitch username as their name; this will skip the process of validation")]
-    public bool fastValidation;
-    [Tooltip("Start the game in recovery mode to restore any saved data from a previous game crash")]
-    public bool recoveryMode;
-    [Tooltip("Limits the number of accounts that may connect to the room (set to 0 for infinite)")]
-    [Range(0, 100)] public int playerLimit;
-
-    [Header("Quesion Data")]
-    public TextAsset questionPack;
 
     public override void Awake()
     {
         base.Awake();
-        if (recoveryMode)
-            skipOpeningTitles = true;
     }
 
     private void Start()
     {
-        if(recoveryMode)
-            skipOpeningTitles = true;
 
-        HostManager.Get.host.ReloadHost = recoveryMode;
-        if (recoveryMode)
-            SaveManager.RestoreData();
+    }
 
-        if (questionPack != null)
-            QuestionManager.DecompilePack(questionPack);
+    [Button]
+    public void LoadTestWall()
+    {
+        if (WonderwallManager.Get.gameActive)
+            return;
+        TestQuestionGenerator.Get.DownloadAWall();
+    }
+
+    [Button]
+    public void StartTheWall()
+    {
+        if (WonderwallManager.Get.gameActive)
+        {
+            DebugLog.Print("A GAME IS ALREADY UNDERWAY!", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
+            return;
+        }
+                
+        if (QuestionManager.currentPack == null)
+        {
+            DebugLog.Print("NO QUESTION PACK HAS BEEN INGESTED!", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
+            return;
+        }            
         else
-            DebugLog.Print("NO QUESTION PACK LOADED; PLEASE ASSIGN ONE AND RESTART THE BUILD", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
-
-        DataStorage.CreateDataPath();
-        GameplayEvent.Log("Game initiated");
-        //HotseatPlayerEvent.Log(PlayerObject, "");
-        //AudiencePlayerEvent.Log(PlayerObject, "");
-        EventLogger.PrintLog();
+            WonderwallManager.Get.InitWall();
     }
 
     [Button]
-    public void ProgressGameplay()
+    public void Correct()
     {
-        if (questionPack != null)
-            GameplayManager.Get.ProgressGameplay();
+        WonderwallManager.Get.Correct();
     }
 
     [Button]
-    public void Save()
+    public void Incorrect()
     {
-        SaveManager.BackUpData();
+        WonderwallManager.Get.Incorrect();
+    }
+
+    [Button]
+    public void Pass()
+    {
+        WonderwallManager.Get.Pass();
+    }
+
+    [Button]
+    public void Pitstop()
+    {
+        WonderwallManager.Get.Pitstop();
+    }
+
+    [Button]
+    public void BailOut()
+    {
+        WonderwallManager.Get.BailOut();
+    }
+
+    [Button]
+    public void ToggleWallSpeed()
+    {
+        WonderwallManager.Get.ToggleWallSpeed();
+    }
+
+    [Button]
+    public void LockWallLeft()
+    {
+        WonderwallManager.Get.WallLock(0);
+    }
+
+    [Button]
+    public void LockWallCentre()
+    {
+        WonderwallManager.Get.WallLock(1);
+    }
+
+    [Button]
+    public void LockWallRight()
+    {
+        WonderwallManager.Get.WallLock(2);
     }
 }

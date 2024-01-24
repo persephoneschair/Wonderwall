@@ -47,12 +47,6 @@ public class RoundBase : MonoBehaviour
 
     public virtual void ResetPlayerVariables()
     {
-        foreach (PlayerObject po in PlayerManager.Get.players)
-        {
-            po.submission = "";
-            po.submissionTime = 0;
-            po.flagForCondone = false;
-            po.wasCorrect = false;
-        }
+        
     }
 }

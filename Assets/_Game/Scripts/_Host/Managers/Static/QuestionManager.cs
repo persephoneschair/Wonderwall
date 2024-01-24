@@ -8,27 +8,19 @@ using UnityEngine.PlayerLoop;
 public static class QuestionManager
 {
     public static Pack currentPack = null;
+    private static int currentIndex = 0;
 
-    public static void DecompilePack(TextAsset tx)
+    public static void LoadPack(Pack p)
     {
-        currentPack = JsonConvert.DeserializeObject<Pack>(tx.text);
+        currentPack = p;
     }
 
-    public static int GetRoundQCount()
+    public static Question GetNextQuestion()
     {
-        switch (GameplayManager.Get.currentRound)
-        {
-            default:
-                return 0;
-        }
-    }
+        if (currentIndex >= currentPack.questions.Count)
+            return null;
 
-    public static Question GetQuestion(int qNum)
-    {
-        switch (GameplayManager.Get.currentRound)
-        {
-            default:
-                return null;
-        }
+        currentIndex++;
+        return currentPack.questions[currentIndex - 1];
     }
 }

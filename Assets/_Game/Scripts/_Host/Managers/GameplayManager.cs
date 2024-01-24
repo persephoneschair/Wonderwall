@@ -5,7 +5,6 @@ using UnityEngine;
 using NaughtyAttributes;
 using TMPro;
 using System.Linq;
-using Control;
 
 public class GameplayManager : SingletonMonoBehaviour<GameplayManager>
 {
@@ -18,8 +17,6 @@ public class GameplayManager : SingletonMonoBehaviour<GameplayManager>
     public enum GameplayStage
     {
         RunTitles,
-        OpenLobby,
-        LockLobby,
         RevealInstructions,
         HideInstructions,
         RunQuestion,
@@ -46,15 +43,6 @@ public class GameplayManager : SingletonMonoBehaviour<GameplayManager>
                 //If in recovery mode, we need to call Restore Players to restore specific player data (client end should be handled by the reload host call)
                 //Also need to call Restore gameplay state to bring us back to where we need to be (skipping titles along the way)
                 //Reveal instructions would probably be a sensible place to go to, though check that doesn't iterate any game state data itself
-                break;
-
-            case GameplayStage.OpenLobby:
-                LobbyManager.Get.OnOpenLobby();
-                currentStage++;
-                break;
-
-            case GameplayStage.LockLobby:
-                LobbyManager.Get.OnLockLobby();
                 break;
 
             case GameplayStage.RevealInstructions:

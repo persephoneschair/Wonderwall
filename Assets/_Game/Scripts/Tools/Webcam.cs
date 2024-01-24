@@ -13,7 +13,7 @@ public class Webcam : MonoBehaviour
     public void SwitchCamOn()
     {
         WebCamTexture webcamTexture = new WebCamTexture();
-        GetComponent<Renderer>().material.mainTexture = webcamTexture;
+        GetComponent<RawImage>().texture = webcamTexture;
         webcamTexture.Play();
     }
 }

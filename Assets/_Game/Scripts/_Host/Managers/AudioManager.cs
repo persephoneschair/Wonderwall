@@ -8,13 +8,35 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
 
     public AudioSource oneShotSource;
     public AudioSource loopingSource;
+    public AudioSource finalCountdown;
 
     private bool playedUnique;
 
-    public enum OneShotClip { Impact, PodiumAnim, ClockTick, PlayerAnswer, WrongInFinal, ClockArm, Rotation, QStartAndEnd, PointTick };
+    public enum OneShotClip
+    {
+        RevealAnswers,
+        CountdownToStart,
+        StartCrack,
+        Pit1,
+        Pit2, 
+        Correct,
+        Incorrect,
+        Pass,
+        EndSting,
+        JackpotSting
+    };
     public AudioClip[] stings;
 
-    public enum LoopClip { Titles, GameplayLoop, WinTheme, Credits };
+    public enum LoopClip
+    {
+        MainTheme,
+        Setup,
+        ChairRotation,
+        Theme1,
+        Theme2,
+        Theme3,
+        EndCredits
+    };
     public AudioClip[] loops;
 
     #region Public Methods
@@ -25,6 +47,11 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
             StartCoroutine(Delay(oneShot, delay));
         else
             oneShotSource.PlayOneShot(stings[(int)oneShot]);
+    }
+
+    public void PlayFinalCountdown()
+    {
+        finalCountdown.Play();
     }
 
     public void PlayUnique(OneShotClip unique)
