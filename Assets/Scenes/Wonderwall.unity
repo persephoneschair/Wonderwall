@@ -4364,6 +4364,142 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7137738174580512036, guid: c55e0156b9d3b9440931a8afb677e6fd, type: 3}
   m_PrefabInstance: {fileID: 336026641}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &343277748
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 343277749}
+  - component: {fileID: 343277751}
+  - component: {fileID: 343277750}
+  m_Layer: 0
+  m_Name: HackboxManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &343277749
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343277748}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1110804838}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &343277750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343277748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b7f396b17f2f3a4ea445ab834060e42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  operatorName: OPERATOR
+  contestantName: CONTESTANT
+  hackboxHost: {fileID: 343277751}
+  wonderwallTheme: {fileID: 11400000, guid: ae9693dc33dfd454dacc6bcd7ab7e92c, type: 2}
+  header: {fileID: 11400000, guid: d2d330c99e48d3546be110d7373ec715, type: 2}
+  wallOrientation: {fileID: 11400000, guid: e145a7529d5c29c4b809d010ad189ded, type: 2}
+  wallSpeed: {fileID: 11400000, guid: 0289a18b92cceb1419f6a2721e413152, type: 2}
+  helps: {fileID: 11400000, guid: e70938002f6a3de4bb0d120e50ce9987, type: 2}
+  operatorMark: {fileID: 11400000, guid: b32e6f0ad71c0c140a99f45504ac556f, type: 2}
+  operatorQuestion: {fileID: 11400000, guid: f2c124b89a201c24b82e5b01000251ae, type: 2}
+  launchGame: {fileID: 11400000, guid: d03205ecbf480414fbc11a70720cb122, type: 2}
+--- !u!114 &343277751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343277748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7783147471dfc748939757a8440123d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnRoomCreated:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 343277750}
+        m_TargetAssemblyTypeName: HackboxManager, Game
+        m_MethodName: OnCreatedRoom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnRoomConnected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomDisconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomReconnecting:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomReconnectFailed:
+    m_PersistentCalls:
+      m_Calls: []
+  OnMemberJoined:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 343277750}
+        m_TargetAssemblyTypeName: HackboxManager, Game
+        m_MethodName: OnPlayerJoins
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMemberKicked:
+    m_PersistentCalls:
+      m_Calls: []
+  OnMessage:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 343277750}
+        m_TargetAssemblyTypeName: HackboxManager, Game
+        m_MethodName: OnMessageReceived
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnPingPong:
+    m_PersistentCalls:
+      m_Calls: []
+  URL: https://app.hackbox.ca/
+  HostName: 
+  HostVersion: 2
+  ReloadHost: 1
+  TwitchRequired: 0
+  Debugging: 0
 --- !u!1 &365836805
 GameObject:
   m_ObjectHideFlags: 0
@@ -12764,6 +12900,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 166617348}
+  - {fileID: 343277749}
   - {fileID: 1851079383}
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -19181,7 +19318,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1110804838}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1851079384
 MonoBehaviour:

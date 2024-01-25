@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92925c059f7816149b0a3ca61040876a, type: 3}
+  m_Name: WonderwallTheme
+  m_EditorClassIdentifier: 
+  HeaderColor: {r: 1, g: 1, b: 1, a: 1}
+  HeaderBackground: radial-gradient(circle at center, #B90017FF 0%, #350000FF 100%)
+  HeaderMinHeight: 10px
+  HeaderMaxHeight: 25px
+  HeaderFontFamily: 
+  MainColor: {r: 1, g: 1, b: 1, a: 1}
+  MainBackground: linear-gradient(0deg, #00426FFF 0%, #005C67FF 100%)
+  MainMinWidth: 350px
+  MainMaxWidth: 1350px
+  Fonts: []

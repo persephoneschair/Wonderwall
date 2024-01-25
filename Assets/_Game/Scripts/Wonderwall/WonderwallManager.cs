@@ -85,7 +85,7 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
         {
             if (value != null)
             {
-                //Question has changed - update host
+                HackboxManager.Get.SendOperatorMimic($"{Array.IndexOf(QuestionManager.currentPack.questions.ToArray(), value) + 1}) {value.question}", $"[{answerBoxes.FirstOrDefault(x => x.answer == value.correctAnswer).boxIndex + 1}] {value.correctAnswer}");
                 DebugLog.Print($"{Array.IndexOf(QuestionManager.currentPack.questions.ToArray(), value) + 1}) {value.question}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Blue);
                 DebugLog.Print($"[{answerBoxes.FirstOrDefault(x => x.answer == value.correctAnswer).boxIndex + 1}] {value.correctAnswer}", DebugLog.StyleOption.Italic, DebugLog.ColorOption.Green);
             }

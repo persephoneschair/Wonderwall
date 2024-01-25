@@ -42,8 +42,16 @@ public class Operator : SingletonMonoBehaviour<Operator>
         if (QuestionManager.currentPack == null)
         {
             DebugLog.Print("NO QUESTION PACK HAS BEEN INGESTED!", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
+            if (HackboxManager.Get.operatorControl != null)
+                HackboxManager.Get.SendHostLaunchGame();
             return;
-        }            
+        }    
+        
+        if(HackboxManager.Get.contestantControl == null)
+        {
+            DebugLog.Print($"NO CONTESTANT DEVICE CONNECTED: CONNECT A DEVICE WITH THE ROOM CODE {HackboxManager.Get.hackboxHost.RoomCode}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
+            return;
+        }
         else
             WonderwallManager.Get.InitWall();
     }
