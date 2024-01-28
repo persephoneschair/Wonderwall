@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainMenuManager : SingletonMonoBehaviour<MainMenuManager>
 {
@@ -14,7 +15,9 @@ public class MainMenuManager : SingletonMonoBehaviour<MainMenuManager>
         DeviceConfiguration,
         ImportQuestions,
         QuestionDatabase,
-        Quit
+        Quit,
+        PlayRemoteWall,
+        ConvertBespokeWall
     };
 
     public GameObject titleLogo;
@@ -23,6 +26,8 @@ public class MainMenuManager : SingletonMonoBehaviour<MainMenuManager>
     public SubMenuManager[] subMenuManagers;
 
     public Animator menuAnim;
+
+    public RawImage sceneBlocker;
 
     public void OnRoomConnected()
     {
@@ -33,40 +38,55 @@ public class MainMenuManager : SingletonMonoBehaviour<MainMenuManager>
     public void ToggleMenu()
     {
         menuAnim.SetTrigger("toggle");
+        sceneBlocker.enabled = !sceneBlocker.enabled;
     }
 
     public void OnClickMenuButton(ButtonType buttonType)
     {
-        if(buttonType == ButtonType.PlayRandomWall)
-        {
-            LoadRandomWall();
-            return;
-        }
-        KillAllMenus();
-        ActivateMenu(buttonType);
         switch(buttonType)
         {
-            case ButtonType.Home:
-                break;
+            case ButtonType.PlayRandomWall:
+                LoadRandomWall();
+                return;
 
-            case ButtonType.PlayBespokeWall:
-                ImportManager.Get.OnClickImportQuestions(true);
-                break;
+            case ButtonType.PlayRemoteWall:
+                ToggleMenu();
+                ImportManager.Get.TogglePersist("<color=#FF8D00>AWAITING PACK INGESTION FROM OPERATOR");
+                HackboxManager.Get.SendRemotePackIngest();
+                return;
 
-            case ButtonType.GameConfiguration:
-                break;
+            default:
+                KillAllMenus();
+                ActivateMenu(buttonType);
+                switch (buttonType)
+                {
+                    case ButtonType.Home:
+                        break;
 
-            case ButtonType.DeviceConfiguration:
-                break;
+                    case ButtonType.PlayBespokeWall:
+                        ImportManager.Get.OnClickImportQuestions(true);
+                        break;
 
-            case ButtonType.ImportQuestions:
-                ImportManager.Get.OnClickImportQuestions(false);
-                break;
+                    case ButtonType.ConvertBespokeWall:
+                        ImportManager.Get.OnClickImportQuestions(false, true);
+                        break;
 
-            case ButtonType.QuestionDatabase:
-                break;
+                    case ButtonType.GameConfiguration:
+                        break;
 
-            case ButtonType.Quit:
+                    case ButtonType.DeviceConfiguration:
+                        break;
+
+                    case ButtonType.ImportQuestions:
+                        ImportManager.Get.OnClickImportQuestions(false);
+                        break;
+
+                    case ButtonType.QuestionDatabase:
+                        break;
+
+                    case ButtonType.Quit:
+                        break;
+                }
                 break;
         }
     }

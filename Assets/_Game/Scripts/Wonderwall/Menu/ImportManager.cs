@@ -20,24 +20,23 @@ public class ImportManager : SingletonMonoBehaviour<ImportManager>
     private const string noNewQs = "<color=#FF8D00>IMPORTED DATA CONTAINED NO NEW QUESTIONS";
     private const string wallImportSuccessful = "<color=#00FF00>BESPOKE WALL LOADED\nREADY TO PLAY";
 
-    public void OnClickImportQuestions(bool bespokeWall)
+    public void OnClickImportQuestions(bool bespokeWall, bool convert = false)
     {
         SetFiltersToAsset();
-        StartCoroutine(ShowLoadDialogCoroutine(bespokeWall));
+        StartCoroutine(ShowLoadDialogCoroutine(bespokeWall, convert));
     }
     public void SetFiltersToAsset()
     {
         FileBrowser.SetFilters(false, new FileBrowser.Filter("Question Sheet", ".csv"));
         FileBrowser.SetDefaultFilter(".csv");
     }
-    public IEnumerator ShowLoadDialogCoroutine(bool bespokeWall)
+    public IEnumerator ShowLoadDialogCoroutine(bool bespokeWall, bool convert = false)
     {
-        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, PersistenceManager.localDataPath + $"/Question Data {(bespokeWall ? "/Bespoke Walls" : "")}", null, "Import Question Data", "Import");
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, PersistenceManager.localDataPath + $"/Question Data {(bespokeWall || convert ? "/Bespoke Walls" : "")}", null, "Import Question Data", "Import");
         try
         {
             if (FileBrowser.Success)
-                ImportQuestions(File.ReadAllText(FileBrowser.Result.FirstOrDefault()), bespokeWall);
-
+                ImportQuestions(File.ReadAllText(FileBrowser.Result.FirstOrDefault()), bespokeWall, convert);
 
             (MainMenuManager.Get.GetDBMan() as DatabaseManager).BuildQuestionObjects();
             MainMenuManager.Get.OnClickMenuButton(MainMenuManager.ButtonType.Home);
@@ -51,8 +50,15 @@ public class ImportManager : SingletonMonoBehaviour<ImportManager>
         (MainMenuManager.Get.GetDBMan() as DatabaseManager).UpdateReadoutMesh();
     }
 
-    private void ImportQuestions(string csv, bool bespokeWall)
+    private void ImportQuestions(string csv, bool bespokeWall, bool convert = false)
     {
+        if (convert)
+        {
+            GUIUtility.systemCopyBuffer = csv.Replace("\r\n", "|");
+            TriggerAlert("<color=#00FF00>WALL CONVERSION COPIED TO CLIPBOARD");
+            return;
+        }
+
         Question[] qs = CSVSerializer.Deserialize<Question>(csv);
 
         if (!bespokeWall)
@@ -69,6 +75,18 @@ public class ImportManager : SingletonMonoBehaviour<ImportManager>
             PersistenceManager.WriteQuestionDatabase();
         }
         else
+            TryParseBespoke(qs);
+    }
+
+    public void OnRemoteImport(string remoteIngest)
+    {
+        remoteIngest = remoteIngest.Replace("|", "\r\n");
+        TryParseBespoke(CSVSerializer.Deserialize<Question>(remoteIngest), true);
+    }
+
+    private void TryParseBespoke(Question[] qs, bool remote = false)
+    {
+        if(!remote)
         {
             if (qs.Length != 25)
                 TriggerAlert(string.Format(notEnoughQsAlert, qs.Length));
@@ -80,11 +98,35 @@ public class ImportManager : SingletonMonoBehaviour<ImportManager>
                 TriggerAlert(string.Format(wallImportSuccessful));
             }
         }
+        else
+        {
+            if(qs.Length != 25)
+            {
+                TogglePersist();
+                TriggerAlert(string.Format(notEnoughQsAlert, qs.Length));
+                HackboxManager.Get.SendGenericMessage(HackboxManager.Get.operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                MainMenuManager.Get.ToggleMenu();
+            }
+            else
+            {
+                List<Question> filteredQs = qs.ToList();
+                QuestionManager.LoadPack(filteredQs, true);
+                TogglePersist();
+                TriggerAlert(string.Format("<color=#00FF00>BESPOKE WALL LOADED REMOTELY\nREADY TO PLAY", qs.Length));
+                HackboxManager.Get.SendOperatorGetName();
+            }
+        }
     }
 
     public void TriggerAlert(string message)
     {
         errorMesh.text = message;
         errorAnim.SetTrigger("alert");
-    }    
+    }
+
+    public void TogglePersist(string message = "")
+    {
+        errorMesh.text = message;
+        errorAnim.SetBool("persist", !errorAnim.GetBool("persist"));
+    }
 }

@@ -41,6 +41,7 @@ public class MenuButton : MonoBehaviour
                 break;
 
             case MainMenuManager.ButtonType.PlayBespokeWall:
+            case MainMenuManager.ButtonType.PlayRemoteWall:
                 if (hb.operatorControl == null || hb.contestantControl == null)
                 {
                     button.interactable = false;

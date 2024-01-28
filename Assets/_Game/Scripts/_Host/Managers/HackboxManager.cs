@@ -229,13 +229,15 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
         state.Components.Add(options);
     }
 
-    public void AddInputBox(State state)
+    public void AddInputBox(State state, string ev = "")
     {
         UIComponent name = new UIComponent()
         {
             Name = "name",
             Preset = inputBox,
         };
+        if(!string.IsNullOrEmpty(ev))
+            name.SetParameterValue("event", ev);
         state.Components.Add(name);
     }
 
@@ -319,6 +321,15 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
         State s = GenerateBaseState("OPERATOR");
         AddQAndA(s, "ENTER PLAYER'S NAME IN THE BOX BELOW AND HIT SEND");
         AddInputBox(s);
+        AddAbandonGame(s, false);
+        hackboxHost.UpdateMemberState(operatorControl, s);
+    }
+
+    public void SendRemotePackIngest()
+    {
+        State s = GenerateBaseState("OPERATOR");
+        AddQAndA(s, "CONVERT A BESPOKE PACK AND PASTE THE RESULTING STRING DATA INTO THE BOX BELOW AND HIT SEND TO LOAD IT REMOTELY");
+        AddInputBox(s, "REMOTEINGEST");
         AddAbandonGame(s, false);
         hackboxHost.UpdateMemberState(operatorControl, s);
     }
@@ -436,63 +447,72 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
 
         else if(mes.Member == operatorControl)
         {
-            if(mes.Event == "GETNAME")
+            switch(mes.Event)
             {
-                WonderwallManager.Get.playerName = mes.Value.ToString();
-                SendLaunchGame();
-            }
-            else
-            {
-                switch (mes.Value)
-                {
-                    case "LAUNCH":
-                        SendGenericMessage(operatorControl, "LAUNCHING WALL");
-                        Operator.Get.StartTheWall();
-                        break;
+                case "GETNAME":
+                    WonderwallManager.Get.playerName = mes.Value.ToString();
+                    SendLaunchGame();
+                    break;
 
-                    case "ABANDON":
-                        QuestionManager.ClearDownPack();
-                        ImportManager.Get.TriggerAlert("<color=#FF0000>GAME ABANDONED");
-                        MainMenuManager.Get.ToggleMenu();
-                        SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
-                        break;
+                case "REMOTEINGEST":
+                    ImportManager.Get.OnRemoteImport(mes.Value);
+                    break;
 
-                    case "END":
-                        WonderwallManager.Get.triggeredStrap.SetTrigger("lock");
-                        WonderwallManager.Get.triggeredStrap = null;
-                        LatticeManager.Get.SetMenu();
-                        MainMenuManager.Get.ToggleMenu();
-                        QuestionManager.ClearDownPack();
-                        AudioManager.Get.Play(AudioManager.LoopClip.Setup, true);
+                default:
+                    switch (mes.Value)
+                    {
+                        case "LAUNCH":
+                            SendGenericMessage(operatorControl, "LAUNCHING WALL");
+                            Operator.Get.StartTheWall();
+                            break;
 
-                        SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
-                        SendGenericMessage(contestantControl, "CONNECTED<br>AWAITING PACK INGESTION");
-                        break;
+                        case "ABANDON":
+                            if (ImportManager.Get.errorAnim.GetBool("persist"))
+                                ImportManager.Get.TogglePersist();
 
-                    case "CORRECT":
-                        if (dcm != null && dcm.testOperatorButton)
-                            EndTest();
-                        else
-                        {
-                            Operator.Get.Correct();
+                            QuestionManager.ClearDownPack();
+                            ImportManager.Get.TriggerAlert("<color=#FF0000>GAME ABANDONED");
+                            MainMenuManager.Get.ToggleMenu();
+                            SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                            break;
+
+                        case "END":
+                            WonderwallManager.Get.triggeredStrap.SetTrigger("lock");
+                            WonderwallManager.Get.triggeredStrap = null;
+                            LatticeManager.Get.SetMenu();
+                            MainMenuManager.Get.ToggleMenu();
+                            QuestionManager.ClearDownPack();
+                            AudioManager.Get.Play(AudioManager.LoopClip.Setup, true);
+
+                            SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                            SendGenericMessage(contestantControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                            break;
+
+                        case "CORRECT":
+                            if (dcm != null && dcm.testOperatorButton)
+                                EndTest();
+                            else
+                            {
+                                Operator.Get.Correct();
+                                RefreshOperator();
+                            }
+                            break;
+
+                        case "INCORRECT":
+                            if (dcm != null && dcm.testOperatorButton)
+                                EndTest();
+                            else
+                            {
+                                Operator.Get.Incorrect();
+                                RefreshOperator();
+                            }
+                            break;
+
+                        default:
                             RefreshOperator();
-                        }
-                        break;
-
-                    case "INCORRECT":
-                        if (dcm != null && dcm.testOperatorButton)
-                            EndTest();
-                        else
-                        {
-                            Operator.Get.Incorrect();
-                            RefreshOperator();
-                        }
-                        break;
-
-                    default:
-                        RefreshOperator();
-                        break;
-                }
+                            break;
+                    }
+                    break;
             }
         }
     }
