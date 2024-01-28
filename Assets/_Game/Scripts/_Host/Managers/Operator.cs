@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using NaughtyAttributes;
 using System.Linq;
+using TMPro;
 
 public class Operator : SingletonMonoBehaviour<Operator>
 {
@@ -10,6 +11,7 @@ public class Operator : SingletonMonoBehaviour<Operator>
     public GameObject loadingScreen;
     public Animator loadingAnim;
     public bool reloadHackboxHost;
+    public TextMeshProUGUI debugger;
 
     public override void Awake()
     {

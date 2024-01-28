@@ -32,7 +32,7 @@ public class ImportManager : SingletonMonoBehaviour<ImportManager>
     }
     public IEnumerator ShowLoadDialogCoroutine(bool bespokeWall)
     {
-        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, Application.dataPath, null, "Import Question Data", "Import");
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, PersistenceManager.localDataPath + $"/Question Data {(bespokeWall ? "/Bespoke Walls" : "")}", null, "Import Question Data", "Import");
         try
         {
             if (FileBrowser.Success)
