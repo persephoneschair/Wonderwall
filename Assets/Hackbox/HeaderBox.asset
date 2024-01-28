@@ -23,6 +23,8 @@ MonoBehaviour:
     - id: 5
     - id: 6
     - id: 7
+    - id: 8
+    - id: 9
   ParameterList:
     Parameters: []
   references:
@@ -31,39 +33,49 @@ MonoBehaviour:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: align
-        _value: center
+        _value: left
     00000001:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: background
         _value: '#20202000'
     00000002:
-      type: {class: ColorParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: color
-        _value: {r: 1, g: 1, b: 1, a: 1}
-    00000003:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: fontSize
-        _value: 25px
-    00000004:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: width
-        _value: 250px
-    00000005:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: border
-        _value: 0px
-    00000006:
+        _value: 5px ridge garkgreen
+    00000003:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: borderRadius
         _value: 0px
+    00000004:
+      type: {class: ColorParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: color
+        _value: {r: 1, g: 1, b: 1, a: 1}
+    00000005:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontFamily
+        _value: Kanit
+    00000006:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontSize
+        _value: 20px
     00000007:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: margin
-        _value: 0px 0px
+        _value: 0px
+    00000008:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: padding
+        _value: 0px
+    00000009:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: width
+        _value: 350px

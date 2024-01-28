@@ -23,6 +23,8 @@ public class GlobalTimeManager : SingletonMonoBehaviour<GlobalTimeManager>
 
     private int resumeFinalCountdown;
 
+    private float timeSinceOperatorRefresh;
+
     private void Update()
     {
         if (pitRunning)
@@ -122,10 +124,21 @@ public class GlobalTimeManager : SingletonMonoBehaviour<GlobalTimeManager>
     private void QuestionTimer()
     {
         elapsedTime += (1f * Time.deltaTime);
+        timeSinceOperatorRefresh += (1f * Time.deltaTime);
         WonderwallManager.Get.timerMesh.text = (startTime - elapsedTime < 60.01f) ? GetSecondsAndTenths() : GetMinutesAndSeconds();
         mainSlider.value = 1f - (elapsedTime / startTime);
-        if (GetRemainingTime() < WonderwallManager.Get.enableBailOutAt && !WonderwallManager.Get.bailoutActive)
+
+        if(timeSinceOperatorRefresh > PersistenceManager.CurrentGameplayConfig.OperatorRefreshInterval)
+        {
+            timeSinceOperatorRefresh = 0f;
+            WonderwallManager.Get.UpdateOperatorMimic();
+        }            
+
+        if ((GetRemainingTime() < PersistenceManager.CurrentGameplayConfig.EnableBailOutAt) && !WonderwallManager.Get.bailoutActive && WonderwallManager.Get.playWithBail)
+        {
             WonderwallManager.Get.bailoutActive = WonderwallManager.Get.CheckForBailout();
+            WonderwallManager.Get.UpdateOperatorMimic();
+        }            
         if (GetRemainingTime() < 15f && !AudioManager.Get.finalCountdown.isPlaying)
         {
             AudioManager.Get.finalCountdown.Play();

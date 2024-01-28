@@ -22,65 +22,88 @@ MonoBehaviour:
     - id: 4
     - id: 5
     - id: 6
-  ParameterList:
-    Parameters:
     - id: 7
     - id: 8
+  ParameterList:
+    Parameters:
+    - id: 9
+    - id: 10
   references:
     version: 1
     00000000:
-      type: {class: BoolParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: grid
-        _value: 1
-    00000001:
-      type: {class: IntParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: gridColumns
-        _value: 3
-    00000002:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: fontSize
-        _value: 35px
-    00000003:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: gridGap
-        _value: 20px
-    00000004:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: align
         _value: center
-    00000005:
+    00000001:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: background
-        _value: '#00153FFF'
-    00000006:
+        _value: linear-gradient(0deg, #00B910FF 0%, #285900FF 100%)
+    00000002:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: border
+        _value: 5px ridge darkgreen
+    00000003:
       type: {class: ColorParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: color
         _value: {r: 1, g: 1, b: 1, a: 1}
+    00000004:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontFamily
+        _value: Kanit
+    00000005:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontSize
+        _value: 50px
+    00000006:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: margin
+        _value: 0px
     00000007:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: padding
+        _value: 0px
+    00000008:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: width
+        _value: 100
+    00000009:
       type: {class: ChoicesParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: choices
         _value:
-        - Label: LAUNCH
+        - Label: LAUNCH THE WALL
           Value: LAUNCH
           Keys: []
           StyleParameterList:
+            Parameters: []
+        - Label: ABANDON GAME AND RETURN TO MAIN MENU
+          Value: ABANDON
+          Keys: []
+          StyleParameterList:
             Parameters:
-            - id: 9
-    00000008:
+            - id: 11
+            - id: 12
+    0000000A:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: event
         _value: launchGame
-    00000009:
+    0000000B:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: background
-        _value: '#277D00FF'
+        _value: linear-gradient(0deg, #980000FF 0%, #290000FF 100%)
+    0000000C:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: border
+        _value: 5px ridge firebrick

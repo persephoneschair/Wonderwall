@@ -79,7 +79,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _MoveSpeed: 1
-    - _MoveSpeedMultiplier: 0.75
+    - _MoveSpeedMultiplier: 0.25
     - _MoveSpeedX: 7.5
     - _MoveSpeedY: 0
     - _MoveSpeedZ: 5
@@ -89,7 +89,7 @@ Material:
     - _Resolution: 1
     - _RotationSpeed: 1
     - _RotationX: 0.1
-    - _RotationY: 0.1
+    - _RotationY: 0.05
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -98,9 +98,9 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LineColor: {r: 0.706, g: 0.773, b: 0.098, a: 1}
+    - _LineColor: {r: 0.525, g: 0.537, b: 0.576, a: 1}
     - _Mouse: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-    - _MoveSpeed: {r: 1, g: 1, b: 1, a: 1}
+    - _MoveSpeed: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _MoveSpeedMultiplier: {r: 7.5, g: 0, b: 5, a: 0}
     - _RotationSpeed: {r: 0.5, g: 0.5, b: 0.25, a: 1}
   m_BuildTextureStacks: []

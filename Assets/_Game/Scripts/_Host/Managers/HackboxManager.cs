@@ -7,47 +7,79 @@ using Hackbox.UI;
 using TMPro;
 using System.Linq;
 using NaughtyAttributes;
-using static UnityEditor.Progress;
+using UnityEngine.UIElements;
+using System;
 
 public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
 {
-    public string operatorName;
-    public string contestantName;
 
-    public Member operatorControl;
-    public Member contestantControl;
-
+    [Header("Hackbox Config")]
     public Host hackboxHost;
+    public bool allowHotkeyRefresh;
 
+    [Header("Wonderwall Control")]
     public Theme wonderwallTheme;
     public Preset header;
     public Preset wallOrientation;
     public Preset wallSpeed;
-    public Preset helps;
+
+    [Header("Operator")]
     public Preset operatorMark;
     public Preset operatorQuestion;
     public Preset launchGame;
+    public Preset statsBox;
+    public Preset inputBox;
+    public Preset abandonGame;
+    public Preset endGame;
 
-    private string currentQ;
-    private string currentA;
+    [Header("Helps")]
+    public Preset threeHelps;
+    public Preset pitOnly;
+    public Preset pitBail;
+    public Preset passBail;
+    public Preset bailOnly;
+    public Preset returnTest;
 
-    public void OnCreatedRoom()
+    [Header("Live Data")]
+    public Member operatorControl;
+    public Member contestantControl;
+    public State contestantState;
+    private string currentQData;
+    private string currentStatsData;
+    private DeviceConfigManager dcm;
+
+    public void OnConnected(string code)
     {
         DebugLog.Print("Welcome to Wonderwall", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
-        DebugLog.Print($"Players can join the game at HACKBOX.CA using the room code {hackboxHost.RoomCode}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
+        DebugLog.Print($"Players can join the game at HACKBOX.CA using the room code {code}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
+        MainMenuManager.Get.OnRoomConnected();
+        Operator.Get.OnConnectedToRoom();
+    }
+
+    public void ResetConnection()
+    {
+        foreach(Member mem in hackboxHost.AllMembers)
+            SendGenericMessage(mem, "ROOM DESTROYED<br>PLEASE REFRESH YOUR BROWSER AND RECONNECT");
+
+        operatorControl = null;
+        contestantControl = null;
+        hackboxHost.Disconnect();
+        hackboxHost.Connect(true);
     }
 
     public void OnPlayerJoins(Member member)
     {
-        if (member.Name == operatorName && operatorControl == null)
+        if (member.Name == PersistenceManager.CurrentDeviceConfig.OperatorName && operatorControl == null)
         {
             operatorControl = member;
-            SendHostLaunchGame();
+            SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+            //SendOperatorLaunchGame();
         }
-        else if (member.Name == contestantName && contestantControl == null)
+        else if (member.Name == PersistenceManager.CurrentDeviceConfig.ControlName && contestantControl == null)
         {
             contestantControl = member;
-            SendContestantControls();
+            SendGenericMessage(contestantControl, "CONNECTED<br>AWAITING PACK INGESTION");
+            //SendContestantControls();
         }
         else
             InvalidUser(member);
@@ -67,7 +99,7 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         UIComponent box = new UIComponent()
         {
-            Name = "textBox",
+            Name = "header",
             Preset = header,
         };
 
@@ -79,7 +111,7 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         UIComponent options = new UIComponent()
         {
-            Name = "grid",
+            Name = "orientation",
             Preset = wallOrientation,
         };
         state.Components.Add(options);
@@ -89,41 +121,69 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         UIComponent options = new UIComponent()
         {
-            Name = "grid",
+            Name = "speed",
             Preset = wallSpeed,
         };
         state.Components.Add(options);
     }
 
-    public void AddHelps(State state)
+    public void AddThreeHelps(State state)
     {
         UIComponent options = new UIComponent()
         {
-            Name = "grid",
-            Preset = helps,
+            Name = "helps",
+            Preset = threeHelps,
+        };
+        state.Components.Add(options);
+    }
+    public void AddPitOnly(State state)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "helps",
+            Preset = pitOnly,
         };
         state.Components.Add(options);
     }
 
-    public void AddQuestion(State state, string[] qData)
+    public void AddPitBail(State state)
     {
         UIComponent options = new UIComponent()
         {
-            Name = "main",
+            Name = "helps",
+            Preset = pitBail,
+        };
+        state.Components.Add(options);
+    }
+
+    public void AddPassBail(State state)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "helps",
+            Preset = passBail,
+        };
+        state.Components.Add(options);
+    }
+    public void AddBailOnly(State state)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "helps",
+            Preset = bailOnly,
+        };
+        state.Components.Add(options);
+    }
+
+    public void AddQAndA(State state, string qData)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "qA",
             Preset = operatorQuestion,
         };
-
-        ChoicesParameter optionsInfo = options.GetParameter<ChoicesParameter>("choices");
-        optionsInfo.Value = new List<ChoicesParameter.Choice>();
-        for (int i = 0; i < qData.Length; i++)
-        {
-            optionsInfo.Value.Add(new ChoicesParameter.Choice()
-            {
-                Label = qData[i], //This is what will be displayed on the label
-                Value = qData[i], //This is the value that will return to the build
-                Keys = new string[0],
-            });
-        }
+        options.SetParameterValue("text", qData);
+        options.SetStyleParameterValue("fontSize", $"{PersistenceManager.CurrentDeviceConfig.QTextSize}px");
         state.Components.Add(options);
     }
 
@@ -131,7 +191,7 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         UIComponent options = new UIComponent()
         {
-            Name = "grid",
+            Name = "mark",
             Preset = operatorMark,
         };
         state.Components.Add(options);
@@ -141,10 +201,60 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         UIComponent options = new UIComponent()
         {
-            Name = "grid",
+            Name = "launch",
             Preset = launchGame,
         };
         state.Components.Add(options);
+    }
+
+    public void AddStatsBox(State state, string message)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "stats",
+            Preset = statsBox,
+        };
+        options.SetParameterValue("text", message);
+        options.SetStyleParameterValue("fontSize", $"{PersistenceManager.CurrentDeviceConfig.StatsTextSize}px");
+        state.Components.Add(options);
+    }
+
+    public void AddReturnFromTest(State state)
+    {
+        UIComponent options = new UIComponent()
+        {
+            Name = "test",
+            Preset = returnTest,
+        };
+        state.Components.Add(options);
+    }
+
+    public void AddInputBox(State state)
+    {
+        UIComponent name = new UIComponent()
+        {
+            Name = "name",
+            Preset = inputBox,
+        };
+        state.Components.Add(name);
+    }
+
+    public void AddAbandonGame(State state, bool endOfGame)
+    {
+        UIComponent comp;
+        if(endOfGame)
+            comp = new UIComponent()
+            {
+            Name = "abandon",
+            Preset = endGame,
+            };
+        else
+            comp = new UIComponent()
+            {
+                Name = "abandon",
+                Preset = abandonGame,
+            };
+        state.Components.Add(comp);
     }
 
     #endregion
@@ -153,48 +263,135 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
 
     public void InvalidUser(Member mem)
     {
-        State s = GenerateBaseState("INVALID");
+        State s = GenerateBaseState("ERROR");
+        AddQAndA(s, "AN ERROR OCCURED<br><br>PLEASE ENSURE THAT THE NAME YOU SET FOR THIS DEVICE MATHCES WITH ONE OF THE DEVICE NAMES DEFINED IN THE CONFIG OR THAT ANOTHER DEVICE IS NOT ALREADY CONNECTED WITH THIS NAME");
         hackboxHost.UpdateMemberState(mem, s);
+    }
+
+    public void BuildContestantState()
+    {
+        contestantState = GenerateBaseState("CONTROL");
+        AddHeader(contestantState, "WONDERWALL CONTROLS");
+        AddWallOrientation(contestantState);
+        AddWallSpeed(contestantState);
+
+        var cgc = PersistenceManager.CurrentGameplayConfig;
+
+        //At least one help is available; add the header
+        if (cgc.NumberOfStrikes > 0 || cgc.NumberOfPits > 0 || cgc.NumberOfPasses > 0)
+            AddHeader(contestantState, "HELP OPTIONS");
+
+        //Add the necessary preset
+        if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPasses > 0 && cgc.NumberOfPits > 0)
+            AddThreeHelps(contestantState);
+        else if (cgc.NumberOfStrikes == 0 && cgc.NumberOfPasses == 0 && cgc.NumberOfPits > 0)
+            AddPitOnly(contestantState);
+        else if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPits > 0 && cgc.NumberOfPasses == 0)
+            AddPitBail(contestantState);
+        else if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPasses > 0 && cgc.NumberOfPits == 0)
+            AddPassBail(contestantState);
+        else if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPasses == 0 && cgc.NumberOfPits == 0)
+            AddBailOnly(contestantState);
+
+        SendContestantControls();
     }
 
     public void SendContestantControls()
     {
-        State s = GenerateBaseState("CONTROL");
-        AddHeader(s, "WALL CONTROLS");
-        AddWallOrientation(s);
-        AddWallSpeed(s);
-        AddHeader(s, "HELP OPTIONS");
-        AddHelps(s);
-        hackboxHost.UpdateMemberState(contestantControl, s);
+        hackboxHost.UpdateMemberState(contestantControl, contestantState);
     }
 
-    public void SendOperatorMimic(string q, string answer)
+    public void SendOperatorMimic(string qData, string statsData)
     {
-        currentQ = q;
-        currentA = answer;
+        currentQData = qData;
+        currentStatsData = statsData;
+        string[] qx = currentQData.Split('|');
+        string rejoined = string.Join("<br><br>", qx[0], qx[1]);
         State s = GenerateBaseState("OPERATOR");
-        string[] qData = new string[2] { q, answer };
-        AddQuestion(s, qData);
+        AddStatsBox(s, statsData);
+        AddQAndA(s, rejoined);
         AddMark(s);
         hackboxHost.UpdateMemberState(operatorControl, s);
     }
 
-    public void SendHostLaunchGame()
+    public void SendOperatorGetName()
+    {
+        State s = GenerateBaseState("OPERATOR");
+        AddQAndA(s, "ENTER PLAYER'S NAME IN THE BOX BELOW AND HIT SEND");
+        AddInputBox(s);
+        AddAbandonGame(s, false);
+        hackboxHost.UpdateMemberState(operatorControl, s);
+    }
+
+    public void SendLaunchGame()
     {
         State s = GenerateBaseState("OPERATOR");
         AddLaunchGame(s);
         hackboxHost.UpdateMemberState(operatorControl, s);
     }
 
+    public void SendGenericMessage(Member mem, string message)
+    {
+        State s = GenerateBaseState(operatorControl == mem ? "OPERATOR" : "CONTROL");
+        AddQAndA(s, message);
+        hackboxHost.UpdateMemberState(mem, s);
+    }
+
+    public void SendTestQAndA(DeviceConfigManager dc)
+    {
+        if (operatorControl == null)
+            return;
+
+        dcm = dc;
+        State s = GenerateBaseState("OPERATOR");
+        AddStatsBox(s, "There could potentially<br>be up to four<br>lines of statistics<br>in this display");
+        AddQAndA(s, string.Join("<br><br>", "This is what the operator layout will look like. Press either button to return.", "[#] OK"));
+        AddMark(s);
+        //AddReturnFromTest(s);
+        hackboxHost.UpdateMemberState(operatorControl, s);
+    }
+
+    public void SendEndGame()
+    {
+        Invoke("EndDelay", 1f);
+    }
+
+    private void EndDelay()
+    {
+        State s = GenerateBaseState("OPERATOR");
+        AddQAndA(s, "GAME OVER");
+        AddAbandonGame(s, true);
+        hackboxHost.UpdateMemberState(operatorControl, s);
+    }
+
+    private void Update()
+    {
+        if (allowHotkeyRefresh)
+        {
+            if (Input.GetKeyDown(KeyCode.C))
+                RefreshContestant();
+            if (Input.GetKeyDown(KeyCode.O))
+                RefreshOperator();
+        }        
+    }
+
+    [Button]
     public void RefreshContestant()
     {
         if(contestantControl != null)
             SendContestantControls();
     }
 
+    [Button]
     public void RefreshOperator()
     {
-        SendOperatorMimic(currentQ, currentA);
+        if(operatorControl != null)
+        {
+            if (string.IsNullOrEmpty(currentQData) || string.IsNullOrEmpty(currentStatsData))
+                SendOperatorGetName();
+            else
+                SendOperatorMimic(currentQData, currentStatsData);
+        }
     }
 
     #endregion
@@ -239,27 +436,70 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
 
         else if(mes.Member == operatorControl)
         {
-            switch(mes.Value)
+            if(mes.Event == "GETNAME")
             {
-                case "LAUNCH":
-                    State s = GenerateBaseState("OPERATOR");
-                    AddHeader(s, "LAUNCHING WALL");
-                    hackboxHost.UpdateMemberState(operatorControl, s);
-                    Operator.Get.StartTheWall();
-                    break;
+                WonderwallManager.Get.playerName = mes.Value.ToString();
+                SendLaunchGame();
+            }
+            else
+            {
+                switch (mes.Value)
+                {
+                    case "LAUNCH":
+                        SendGenericMessage(operatorControl, "LAUNCHING WALL");
+                        Operator.Get.StartTheWall();
+                        break;
 
-                case "CORRECT":
-                    Operator.Get.Correct();
-                    break;
+                    case "ABANDON":
+                        QuestionManager.ClearDownPack();
+                        ImportManager.Get.TriggerAlert("<color=#FF0000>GAME ABANDONED");
+                        MainMenuManager.Get.ToggleMenu();
+                        SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                        break;
 
-                case "INCORRECT":
-                    Operator.Get.Incorrect();
-                    break;
+                    case "END":
+                        WonderwallManager.Get.triggeredStrap.SetTrigger("lock");
+                        WonderwallManager.Get.triggeredStrap = null;
+                        LatticeManager.Get.SetMenu();
+                        MainMenuManager.Get.ToggleMenu();
+                        QuestionManager.ClearDownPack();
+                        AudioManager.Get.Play(AudioManager.LoopClip.Setup, true);
 
-                default:
-                    RefreshOperator();
-                    break;
+                        SendGenericMessage(operatorControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                        SendGenericMessage(contestantControl, "CONNECTED<br>AWAITING PACK INGESTION");
+                        break;
+
+                    case "CORRECT":
+                        if (dcm != null && dcm.testOperatorButton)
+                            EndTest();
+                        else
+                        {
+                            Operator.Get.Correct();
+                            RefreshOperator();
+                        }
+                        break;
+
+                    case "INCORRECT":
+                        if (dcm != null && dcm.testOperatorButton)
+                            EndTest();
+                        else
+                        {
+                            Operator.Get.Incorrect();
+                            RefreshOperator();
+                        }
+                        break;
+
+                    default:
+                        RefreshOperator();
+                        break;
+                }
             }
         }
+    }
+
+    private void EndTest()
+    {
+        dcm.OnEndTest();
+        dcm = null;
     }
 }

@@ -218,6 +218,9 @@ Shader "Custom/Lattice"
                 float mvm = _MoveSpeedMultiplier;
 
                 float3 ro = float3(_Time.y * mv.x, sin(_Time.y * mv.y), cos(_Time.y * mv.z)) * mvm;
+                // Add an offset to the camera position
+                float cameraOffset = 2.0; // Adjust the offset value as needed
+                ro += normalize(rd) * cameraOffset;
 
                 float3 lp = float3(0., 0.125, -0.125);
                 lp.xy = mul(lp.xy, rot(_Time.y * mv.x));

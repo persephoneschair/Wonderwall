@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HeaderColor: {r: 1, g: 1, b: 1, a: 1}
   HeaderBackground: radial-gradient(circle at center, #B90017FF 0%, #350000FF 100%)
-  HeaderMinHeight: 10px
-  HeaderMaxHeight: 25px
-  HeaderFontFamily: 
+  HeaderMinHeight: 25px
+  HeaderMaxHeight: 35px
+  HeaderFontFamily: Kanit
   MainColor: {r: 1, g: 1, b: 1, a: 1}
-  MainBackground: linear-gradient(0deg, #00426FFF 0%, #005C67FF 100%)
-  MainMinWidth: 350px
-  MainMaxWidth: 1350px
-  Fonts: []
+  MainBackground: radial-gradient(circle at center, #00426FFF 0%, #005C67FF 100%)
+  MainMinWidth: 100px
+  MainMaxWidth: 2000px
+  Fonts:
+  - Kanit

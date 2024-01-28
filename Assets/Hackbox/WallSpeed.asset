@@ -31,68 +31,62 @@ MonoBehaviour:
   references:
     version: 1
     00000000:
-      type: {class: BoolParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: grid
-        _value: 1
-    00000001:
-      type: {class: IntParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: gridColumns
-        _value: 1
-    00000002:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: fontSize
-        _value: 20px
-    00000003:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: gridGap
-        _value: 20px
-    00000004:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: align
         _value: center
-    00000005:
+    00000001:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: background
-        _value: '#D16400FF'
-    00000006:
+        _value: linear-gradient(0deg, #CA7600FF 0%, #634F00FF 100%)
+    00000002:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: border
+        _value: 5px ridge olive
+    00000003:
       type: {class: ColorParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: color
         _value: {r: 1, g: 1, b: 1, a: 1}
+    00000004:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontFamily
+        _value: Kanit
+    00000005:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: fontSize
+        _value: 25px
+    00000006:
+      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
+      data:
+        Name: margin
+        _value: 0px
     00000007:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
-        Name: align
-        _value: center
+        Name: padding
+        _value: 0px
     00000008:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: width
-        _value: 100%
+        _value: 100
     00000009:
       type: {class: ChoicesParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: choices
         _value:
-        - Label: Toggle Speed
+        - Label: TOGGLE SPEED
           Value: Speed
           Keys: []
           StyleParameterList:
-            Parameters:
-            - id: 11
+            Parameters: []
     0000000A:
       type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
       data:
         Name: event
         _value: speed
-    0000000B:
-      type: {class: StringParameter, ns: Hackbox.Parameters, asm: Hackbox}
-      data:
-        Name: align
-        _value: center

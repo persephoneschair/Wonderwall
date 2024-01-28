@@ -39,7 +39,6 @@ public class GameplayManager : SingletonMonoBehaviour<GameplayManager>
         switch (currentStage)
         {
             case GameplayStage.RunTitles:
-                TitlesManager.Get.RunTitleSequence();
                 //If in recovery mode, we need to call Restore Players to restore specific player data (client end should be handled by the reload host call)
                 //Also need to call Restore gameplay state to bring us back to where we need to be (skipping titles along the way)
                 //Reveal instructions would probably be a sensible place to go to, though check that doesn't iterate any game state data itself

@@ -9,14 +9,21 @@ using UnityEngine.Networking;
 public class TestQuestionGenerator : SingletonMonoBehaviour<TestQuestionGenerator>
 {
     public int requiredQuestions = 25;
-    public Pack downloadedPack = new Pack();
+    public Pack activePack = new Pack();
 
     public string webhookRequest = "https://opentdb.com/api.php?amount=50&category=9";
+
+    public bool useRaw;
+    [TextArea(5,20)] public string rawJson;
+
     [Button]
     public void DownloadAWall()
     {
-        downloadedPack.questions.Clear();
-        StartCoroutine(DownloadWall(webhookRequest));
+        activePack.questions.Clear();
+        if (!useRaw)
+            StartCoroutine(DownloadWall(webhookRequest));
+        else
+            ProcessRaw();
     }
 
     IEnumerator DownloadWall(string uri)
@@ -57,22 +64,34 @@ public class TestQuestionGenerator : SingletonMonoBehaviour<TestQuestionGenerato
             Question q = new Question(HttpUtility.HtmlDecode(r.question),
                 HttpUtility.HtmlDecode(r.correct_answer),
                 HttpUtility.HtmlDecode(r.incorrect_answers.FirstOrDefault()));
-            downloadedPack.questions.Add(q);
+            activePack.questions.Add(q);
 
-            if (downloadedPack.questions.Count == requiredQuestions)
+            if (activePack.questions.Count == requiredQuestions)
                 break;
         }
-        if (downloadedPack.questions.Count == requiredQuestions)
+        if (activePack.questions.Count == requiredQuestions)
         {
-            DebugLog.Print($"{downloadedPack.questions.Count} questions downloaded! Wall is ready...", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Green);
-            QuestionManager.LoadPack(downloadedPack);
+            DebugLog.Print($"{activePack.questions.Count} questions downloaded! Wall is ready...", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Green);
+            QuestionManager.LoadPack(activePack);
         }
             
         else
         {
-            DebugLog.Print($"{downloadedPack.questions.Count} questions downloaded - finding more...", DebugLog.StyleOption.Italic, DebugLog.ColorOption.Orange);
+            DebugLog.Print($"{activePack.questions.Count} questions downloaded - finding more...", DebugLog.StyleOption.Italic, DebugLog.ColorOption.Orange);
             Invoke("RecursiveDownload", 5f);
         }            
+    }
+
+    private void ProcessRaw()
+    {
+        JsonConvert.PopulateObject(rawJson, activePack);
+        if(activePack.questions.Count == requiredQuestions)
+        {
+            DebugLog.Print($"{activePack.questions.Count} questions loaded! Wall is ready...", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Green);
+            QuestionManager.LoadPack(activePack);
+        }
+        else
+            DebugLog.Print($"Hmmm...something went wrong...", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
     }
 
     private void RecursiveDownload()
@@ -86,10 +105,10 @@ public class TestQuestionGenerator : SingletonMonoBehaviour<TestQuestionGenerato
             r.correct_answer.ToLowerInvariant() == "false" ||
             r.correct_answer.Length > 20 ||
             r.incorrect_answers.FirstOrDefault().Length > 20 ||
-            downloadedPack.questions.Any(x => x.correctAnswer == r.correct_answer) ||
-            downloadedPack.questions.Any(x => x.incorrectAnswer == r.correct_answer) ||
-            downloadedPack.questions.Any(x => x.correctAnswer == r.incorrect_answers.FirstOrDefault()) ||
-            downloadedPack.questions.Any(x => x.incorrectAnswer == r.incorrect_answers.FirstOrDefault()) ||
+            activePack.questions.Any(x => x.correctAnswer == r.correct_answer) ||
+            activePack.questions.Any(x => x.incorrectAnswer == r.correct_answer) ||
+            activePack.questions.Any(x => x.correctAnswer == r.incorrect_answers.FirstOrDefault()) ||
+            activePack.questions.Any(x => x.incorrectAnswer == r.incorrect_answers.FirstOrDefault()) ||
             r.question.Contains("following") || r.question.Contains("these"))
             return true;
         else

@@ -5,15 +5,18 @@ using UnityEngine.UI;
 
 public class Webcam : MonoBehaviour
 {
-    void Start()
+    public RawImage im;
+
+    public void OnEnable()
     {
-        SwitchCamOn();
+        WebCamTexture tx = new WebCamTexture();
+        im.texture = tx;
+        tx.Play();
     }
 
-    public void SwitchCamOn()
+    public void OnDisable()
     {
-        WebCamTexture webcamTexture = new WebCamTexture();
-        GetComponent<RawImage>().texture = webcamTexture;
-        webcamTexture.Play();
+        WebCamTexture tx = (WebCamTexture)im.mainTexture;
+        tx.Stop();       
     }
 }

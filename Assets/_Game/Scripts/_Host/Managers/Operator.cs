@@ -6,11 +6,10 @@ using System.Linq;
 
 public class Operator : SingletonMonoBehaviour<Operator>
 {
-    [Header("Game Settings")]
-    [Tooltip("Supresses Twitch chat messages and will store Pennys and medals in a separate test file")]
-    public bool testMode;
-    [Tooltip("Skips opening titles")]
-    public bool skipOpeningTitles;
+    public float forcedDelayOnLoadingScreen = 2f;
+    public GameObject loadingScreen;
+    public Animator loadingAnim;
+    public bool reloadHackboxHost;
 
     public override void Awake()
     {
@@ -19,7 +18,27 @@ public class Operator : SingletonMonoBehaviour<Operator>
 
     private void Start()
     {
+        Screen.SetResolution(1920, 1080, true);
+        HackboxManager.Get.hackboxHost.ReloadHost = reloadHackboxHost;
+        PersistenceManager.OnStartup();
+    }
 
+    public void OnConnectedToRoom()
+    {
+        Invoke("KillLoadingScreen", forcedDelayOnLoadingScreen);
+    }
+
+    private void KillLoadingScreen()
+    {
+        //AudioManager.Get.Play(AudioManager.LoopClip.MainTheme, false);
+        AudioManager.Get.Play(AudioManager.LoopClip.Setup, true/*, 38.5f*/);
+        loadingAnim.SetTrigger("loaded");
+        Invoke("KillLoadingObject", 2f);
+    }
+
+    private void KillLoadingObject()
+    {
+        loadingScreen.SetActive(false);
     }
 
     [Button]
@@ -43,12 +62,13 @@ public class Operator : SingletonMonoBehaviour<Operator>
         {
             DebugLog.Print("NO QUESTION PACK HAS BEEN INGESTED!", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
             if (HackboxManager.Get.operatorControl != null)
-                HackboxManager.Get.SendHostLaunchGame();
+                HackboxManager.Get.SendOperatorGetName();
             return;
         }    
         
         if(HackboxManager.Get.contestantControl == null)
         {
+            HackboxManager.Get.SendOperatorGetName();
             DebugLog.Print($"NO CONTESTANT DEVICE CONNECTED: CONNECT A DEVICE WITH THE ROOM CODE {HackboxManager.Get.hackboxHost.RoomCode}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Red);
             return;
         }
