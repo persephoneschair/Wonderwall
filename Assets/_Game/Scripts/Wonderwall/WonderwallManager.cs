@@ -169,17 +169,26 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
         currentPits = PersistenceManager.CurrentGameplayConfig.NumberOfPits;
 
         for (int i = 0; i < PersistenceManager.CurrentGameplayConfig.NumberOfStrikes; i++)
+        {
             strikeImages[i].color = strikeColors[1];
+            strikeImages[i].gameObject.SetActive(true);
+        }            
         for (int i = PersistenceManager.CurrentGameplayConfig.NumberOfStrikes; i < strikeImages.Length; i++)
             strikeImages[i].gameObject.SetActive(false);
 
         for (int i = 0; i < PersistenceManager.CurrentGameplayConfig.NumberOfPasses; i++)
+        {
             passImages[i].color = passColors[1];
+            passImages[i].gameObject.SetActive(true);
+        }            
         for (int i = PersistenceManager.CurrentGameplayConfig.NumberOfPasses; i < passImages.Length; i++)
             passImages[i].gameObject.SetActive(false);
 
         for (int i = 0; i < PersistenceManager.CurrentGameplayConfig.NumberOfPits; i++)
+        {
             pitstopImages[i].color = pitstopColors[1];
+            pitstopImages[i].gameObject.SetActive(true);
+        }            
         for (int i = PersistenceManager.CurrentGameplayConfig.NumberOfPits; i < pitstopImages.Length; i++)
             pitstopImages[i].gameObject.SetActive(false);
 
@@ -216,6 +225,8 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
         yield return new WaitForSeconds(countdownLength);
         UpdateOperatorMimic($"PLAY!");
         UpdateQuestionMesh();
+        bailoutActive = CheckForBailout();
+        HackboxManager.Get.RefreshContestant();
         AudioManager.Get.Play(AudioManager.OneShotClip.StartCrack);
         AudioManager.Get.Play(AudioManager.LoopClip.Theme1, true);
     }
@@ -293,8 +304,18 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
         currentPits--;
         UpdateOperatorMimic($"{pitstopLength} SECOND PITSTOP");
         AudioManager.Get.StopLoop();
-        AudioManager.Get.Play(currentPits == 1 ? AudioManager.LoopClip.Theme2 : AudioManager.LoopClip.Theme3, true, pitstopLength);
-        AudioManager.Get.Play(currentPits == 1 ? AudioManager.OneShotClip.Pit1 : AudioManager.OneShotClip.Pit2);
+
+        if (PersistenceManager.CurrentGameplayConfig.NumberOfPits == 1 || currentPits == 1)
+        {
+            AudioManager.Get.Play(AudioManager.LoopClip.Theme2, true, pitstopLength);
+            AudioManager.Get.Play(AudioManager.OneShotClip.Pit1);
+        }
+        else
+        {
+            AudioManager.Get.Play(AudioManager.LoopClip.Theme3, true, pitstopLength);
+            AudioManager.Get.Play(AudioManager.OneShotClip.Pit2);
+        }
+
         Invoke("UpdateQuestionMesh", pitstopLength);
         Invoke("PostPitMimic", pitstopLength);
     }
@@ -303,6 +324,7 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
     {
         bailoutActive = CheckForBailout();
         UpdateOperatorMimic($"PLAY!");
+        HackboxManager.Get.RefreshContestant();
     }
 
     [Button]
@@ -330,6 +352,7 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
         questionsCorrect++;
         qCounterMesh.text = $"{Math.Min(questionsCorrect, PersistenceManager.CurrentGameplayConfig.TargetQuestions)}/{PersistenceManager.CurrentGameplayConfig.TargetQuestions}";
         answerBoxes.FirstOrDefault(x => x.answer == CurrentQuestion.correctAnswer).OnRevealAnswer(true);
+        HackboxManager.Get.RefreshContestant();
         CurrentQuestion = QuestionManager.GetNextQuestion();
         if (questionsCorrect == PersistenceManager.CurrentGameplayConfig.TargetQuestions)
         {
@@ -354,6 +377,7 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
             currentStrikes--;
         }
         bailoutActive = CheckForBailout();
+        HackboxManager.Get.RefreshContestant();
         CurrentQuestion = QuestionManager.GetNextQuestion();
         if ((currentStrikes == 0 && PersistenceManager.CurrentGameplayConfig.NumberOfStrikes > 0) || (PersistenceManager.CurrentGameplayConfig.NumberOfStrikes == 0 && CurrentQuestion == null))
         {
@@ -413,6 +437,9 @@ public class WonderwallManager : SingletonMonoBehaviour<WonderwallManager>
 
     public bool CheckForBailout()
     {
+        if (bailoutActive)
+            return true;
+
         if (!playWithBail)
             return false;
 

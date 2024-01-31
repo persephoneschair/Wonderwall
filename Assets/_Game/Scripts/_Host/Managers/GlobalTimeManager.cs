@@ -138,6 +138,7 @@ public class GlobalTimeManager : SingletonMonoBehaviour<GlobalTimeManager>
         {
             WonderwallManager.Get.bailoutActive = WonderwallManager.Get.CheckForBailout();
             WonderwallManager.Get.UpdateOperatorMimic();
+            HackboxManager.Get.RefreshContestant();
         }            
         if (GetRemainingTime() < 15f && !AudioManager.Get.finalCountdown.isPlaying)
         {

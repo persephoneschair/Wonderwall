@@ -16,6 +16,7 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     [Header("Hackbox Config")]
     public Host hackboxHost;
     public bool allowHotkeyRefresh;
+    private bool firstLoaded = false;
 
     [Header("Wonderwall Control")]
     public Theme wonderwallTheme;
@@ -53,7 +54,11 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
         DebugLog.Print("Welcome to Wonderwall", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
         DebugLog.Print($"Players can join the game at HACKBOX.CA using the room code {code}", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
         MainMenuManager.Get.OnRoomConnected();
-        Operator.Get.OnConnectedToRoom();
+        if (!firstLoaded)
+        {
+            Operator.Get.OnConnectedToRoom();
+            firstLoaded = true;
+        }
     }
 
     public void ResetConnection()
@@ -61,6 +66,11 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
         foreach(Member mem in hackboxHost.AllMembers)
             SendGenericMessage(mem, "ROOM DESTROYED<br>PLEASE REFRESH YOUR BROWSER AND RECONNECT");
 
+        Invoke("InvokeReset", 0.1f);
+    }
+
+    private void InvokeReset()
+    {
         operatorControl = null;
         contestantControl = null;
         hackboxHost.Disconnect();
@@ -124,6 +134,10 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "speed",
             Preset = wallSpeed,
         };
+        ChoicesParameter ch = new ChoicesParameter(wallSpeed.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = WonderwallManager.Get.wonderwallAnim.speed < 1.5f ? "PLAY WALL FASTER" : "PLAY WALL SLOWER";
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
 
@@ -134,8 +148,17 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "helps",
             Preset = threeHelps,
         };
+
+        string s = !WonderwallManager.Get.bailoutActive ? "BAIL<br>(INACTIVE)" : WonderwallManager.Get.questionsCorrect == 0 ? "BAIL<br>(NOTHING)" : $"BAIL<br>({PersistenceManager.CurrentGameplayConfig.PrizeLadder[WonderwallManager.Get.questionsCorrect - 1]})";
+        ChoicesParameter ch = new ChoicesParameter(threeHelps.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = $"PIT<br>({WonderwallManager.Get.currentPits} LEFT)";
+        ch.Value[1].Label = $"PASS<br>({WonderwallManager.Get.currentPasses} LEFT)";
+        ch.Value[2].Label = s;
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
+
     public void AddPitOnly(State state)
     {
         UIComponent options = new UIComponent()
@@ -143,6 +166,11 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "helps",
             Preset = pitOnly,
         };
+
+        ChoicesParameter ch = new ChoicesParameter(pitOnly.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = $"PIT<br>({WonderwallManager.Get.currentPits} LEFT)";
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
 
@@ -153,6 +181,13 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "helps",
             Preset = pitBail,
         };
+
+        string s = !WonderwallManager.Get.bailoutActive ? "BAIL<br>(INACTIVE)" : WonderwallManager.Get.questionsCorrect == 0 ? "BAIL<br>(NOTHING)" : $"BAIL<br>({PersistenceManager.CurrentGameplayConfig.PrizeLadder[WonderwallManager.Get.questionsCorrect - 1]})";
+        ChoicesParameter ch = new ChoicesParameter(pitBail.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = $"PIT<br>({WonderwallManager.Get.currentPits} LEFT)";
+        ch.Value[1].Label = s;
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
 
@@ -163,6 +198,13 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "helps",
             Preset = passBail,
         };
+
+        string s = !WonderwallManager.Get.bailoutActive ? "BAIL<br>(INACTIVE)" : WonderwallManager.Get.questionsCorrect == 0 ? "BAIL<br>(NOTHING)" : $"BAIL<br>({PersistenceManager.CurrentGameplayConfig.PrizeLadder[WonderwallManager.Get.questionsCorrect - 1]})";
+        ChoicesParameter ch = new ChoicesParameter(passBail.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = $"PASS<br>({WonderwallManager.Get.currentPasses} LEFT)";
+        ch.Value[1].Label = s;
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
     public void AddBailOnly(State state)
@@ -172,6 +214,12 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
             Name = "helps",
             Preset = bailOnly,
         };
+
+        string s = !WonderwallManager.Get.bailoutActive ? "BAIL<br>(INACTIVE)" : WonderwallManager.Get.questionsCorrect == 0 ? "BAIL<br>(NOTHING)" : $"BAIL<br>({PersistenceManager.CurrentGameplayConfig.PrizeLadder[WonderwallManager.Get.questionsCorrect - 1]})";
+        ChoicesParameter ch = new ChoicesParameter(bailOnly.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[0].Label = s;
+        options["choices"] = ch;
+
         state.Components.Add(options);
     }
 
@@ -266,22 +314,29 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     public void InvalidUser(Member mem)
     {
         State s = GenerateBaseState("ERROR");
-        AddQAndA(s, "AN ERROR OCCURED<br><br>PLEASE ENSURE THAT THE NAME YOU SET FOR THIS DEVICE MATHCES WITH ONE OF THE DEVICE NAMES DEFINED IN THE CONFIG OR THAT ANOTHER DEVICE IS NOT ALREADY CONNECTED WITH THIS NAME");
+        AddQAndA(s, "AN ERROR OCCURED<br><br>PLEASE ENSURE THAT THE NAME YOU SET FOR THIS DEVICE MATCHES WITH ONE OF THE DEVICE NAMES DEFINED IN THE CONFIG OR THAT ANOTHER DEVICE IS NOT ALREADY CONNECTED WITH THIS NAME");
         hackboxHost.UpdateMemberState(mem, s);
     }
 
     public void BuildContestantState()
     {
-        contestantState = GenerateBaseState("CONTROL");
-        AddHeader(contestantState, "WONDERWALL CONTROLS");
-        AddWallOrientation(contestantState);
-        AddWallSpeed(contestantState);
-
         var cgc = PersistenceManager.CurrentGameplayConfig;
 
         //At least one help is available; add the header
         if (cgc.NumberOfStrikes > 0 || cgc.NumberOfPits > 0 || cgc.NumberOfPasses > 0)
             AddHeader(contestantState, "HELP OPTIONS");
+
+        SendContestantControls();
+    }
+
+    public void SendContestantControls()
+    {
+        var cgc = PersistenceManager.CurrentGameplayConfig;
+
+        contestantState = GenerateBaseState("CONTROL");
+        AddHeader(contestantState, "WONDERWALL CONTROLS");
+        AddWallOrientation(contestantState);
+        AddWallSpeed(contestantState);
 
         //Add the necessary preset
         if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPasses > 0 && cgc.NumberOfPits > 0)
@@ -295,11 +350,6 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
         else if (cgc.NumberOfStrikes > 0 && cgc.NumberOfPasses == 0 && cgc.NumberOfPits == 0)
             AddBailOnly(contestantState);
 
-        SendContestantControls();
-    }
-
-    public void SendContestantControls()
-    {
         hackboxHost.UpdateMemberState(contestantControl, contestantState);
     }
 
@@ -521,5 +571,24 @@ public class HackboxManager : SingletonMonoBehaviour<HackboxManager>
     {
         dcm.OnEndTest();
         dcm = null;
+    }
+
+    [Button]
+    public void TestLabels()
+    {
+        State s = GenerateBaseState("TEST");
+        UIComponent options = new UIComponent()
+        {
+            Name = "choices",
+            Preset = threeHelps,
+        };
+
+        ChoicesParameter ch = new ChoicesParameter(threeHelps.GetParameter<ChoicesParameter>("choices"));
+        ch.Value[2].Label = "My Label"; //This should *only* change the label of the 3rd choice, leaving all styling and other properties the same
+        //options.SetParameterValue("choices", ch);
+        options["choices"] = ch;
+
+        s.Components.Add(options);
+        hackboxHost.UpdateMemberState(operatorControl, s);
     }
 }

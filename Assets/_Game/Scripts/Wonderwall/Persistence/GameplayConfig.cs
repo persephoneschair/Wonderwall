@@ -69,7 +69,7 @@ public class GameplayConfig
         }
     }
 
-    private int _numberOfPasses = 3;
+    private int _numberOfPasses = 2;
     public int NumberOfPasses
     {
         get { return _numberOfPasses; }
